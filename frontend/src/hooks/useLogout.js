@@ -4,7 +4,7 @@ import { useTasksContext } from "./useTasksContext"
 export const useLogout = () => {
 
     const { dispatch } = useAuthContext()
-    const { dispatch: tasksDispatch } = useAuthContext()
+    const { dispatch: tasksDispatch } = useTasksContext()
 
     const logout = () => {
         // remove user from storage
