@@ -1,14 +1,26 @@
 import { useTasksContext } from "../hooks/useTasksContext"
+import { useAuthContext } from "../hooks/useAuthContext"
+
 
 // date fns
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 
 const TaskDetails = ({ task }) => {
     const { dispatch } = useTasksContext()
+    const { user } = useAuthContext()
 
     const handleClick = async () => {
+        if (!user) {
+            
+            return
+        }
+
         const response = await fetch('/api/tasks/'+ task._id, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${user.token}`
+            }
+
         })
         const json = await response.json()
 
@@ -21,9 +33,9 @@ const TaskDetails = ({ task }) => {
         <div className="task-details">
             <h4>{task.name}</h4>
             <p></p>
-            <p><strong>Task Type: {task.type}</strong></p>
-            <p><strong>Task Duration: {task.duration}</strong></p>
-            <p><strong>Task Description: {task.description}</strong></p>
+            <p><strong>Task Type:</strong> {task.type}</p>
+            <p><strong>Task Duration:</strong> {task.duration}</p>
+            <p><strong>Task Description:</strong> {task.description}</p>
             <p>{formatDistanceToNow(new Date(task.createdAt),{ addSuffix: true })}</p>
             <span className="material-symbols-outlined" onClick={handleClick}>delete</span>
         </div>

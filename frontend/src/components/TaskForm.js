@@ -1,8 +1,11 @@
 import { useState } from "react"
 import { useTasksContext } from "../hooks/useTasksContext"
+import { useAuthContext } from "../hooks/useAuthContext"
 
 const TaskForm = () => {
     const { dispatch } = useTasksContext()
+    const { user } = useAuthContext()
+
     const [name, setName] = useState('')
     const [type, setType] = useState('')
     const [duration, setDuration] = useState('')
@@ -11,21 +14,29 @@ const TaskForm = () => {
     const [emptyFields, setEmptyFields] = useState([])
 
 
+
     const handleSubmit = async (e) => {
         e.preventDefault()
+
+        if (!user) {
+            setError('Please login first')
+            return
+        }
 
         const task = {
             name,
             type,
             duration,
-            description
+            description,
+        
         }
 
         const response = await fetch('/api/tasks',{
             method: 'POST',
             body: JSON.stringify(task),
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${user.token}`
             }
 
         })
@@ -59,7 +70,7 @@ const TaskForm = () => {
                 type="text"
                 onChange={(e) => setName(e.target.value)}
                 value={name}
-                className={emptyFields.includes('title') ? 'error' : ''}
+                className={emptyFields.includes('name') ? 'error' : ''}
             />
             <label>Type:</label>
             <input 
