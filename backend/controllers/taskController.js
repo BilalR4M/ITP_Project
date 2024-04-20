@@ -1,7 +1,9 @@
 const Task = require('../models/taskModel')
 const mongoose = require('mongoose')
 
-// get all tasks
+
+
+// get all tasks of a staff member
 const getTasks = async (req, res) => {
 
     const user_id = req.user._id
@@ -109,5 +111,5 @@ module.exports = {
     getTask,
     createTask,
     deleteTask,
-    updateTask
+    updateTask,
 }

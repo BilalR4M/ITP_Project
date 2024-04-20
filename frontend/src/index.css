@@ -56,7 +56,7 @@ header a {
   font-size: 0.9em;
   color: #555;
 }
-.task-details span {
+/* .task-details span {
   position: absolute;
   top: 20px;
   right: 20px;
@@ -65,6 +65,25 @@ header a {
   padding: 6px;
   border-radius: 50%;
   color: #333;
+} */
+
+
+
+
+.task-details span {
+  position: absolute;
+  top: 20px;
+  cursor: pointer;
+  background: #f1f1f1;
+  padding: 6px;
+  border-radius: 50%;
+  color: #333;
+  right: 20px;
+}
+
+
+.task-details span:last-child {
+  right: 70px; /* Adjust the value to ensure proper spacing */
 }
 
 /* new workout form */
@@ -88,6 +107,10 @@ form button {
   font-family: "Poppins";
   border-radius: 4px;
   cursor: pointer;
+}
+
+form button + button {
+  margin-left: 10px; /* Adjust the margin as needed */
 }
 div.error {
   padding: 10px;

@@ -1,105 +1,102 @@
-import { useState } from "react"
-import { useTasksContext } from "../hooks/useTasksContext"
-import { useAuthContext } from "../hooks/useAuthContext"
+import { useState, useEffect } from "react";
+import { useTasksContext } from "../hooks/useTasksContext";
+import { useAuthContext } from "../hooks/useAuthContext";
 
-const TaskForm = () => {
-    const { dispatch } = useTasksContext()
-    const { user } = useAuthContext()
+const TaskForm = ({ task, setSelectedTask }) => {
+    const { dispatch } = useTasksContext();
+    const { user } = useAuthContext();
 
-    const [name, setName] = useState('')
-    const [type, setType] = useState('')
-    const [duration, setDuration] = useState('')
-    const [description, setDescription] = useState('')
-    const [error, setError] = useState(null)
-    const [emptyFields, setEmptyFields] = useState([])
+    const [name, setName] = useState('');
+    const [type, setType] = useState('');
+    const [duration, setDuration] = useState('');
+    const [description, setDescription] = useState('');
 
+    const isUpdating = !!task; // Check if task is present to determine if updating
 
+    useEffect(() => {
+        if (isUpdating) {
+            setName(task.name || '');
+            setType(task.type || '');
+            setDuration(task.duration || '');
+            setDescription(task.description || '');
+        } else {
+            // Reset form fields when adding a new task
+            setName('');
+            setType('');
+            setDuration('');
+            setDescription('');
+        }
+    }, [task, isUpdating]);
 
     const handleSubmit = async (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         if (!user) {
-            setError('Please login first')
-            return
+            return;
         }
 
-        const task = {
+        const taskData = {
             name,
             type,
             duration,
             description,
-        
-        }
+        };
 
-        const response = await fetch('/api/tasks',{
-            method: 'POST',
-            body: JSON.stringify(task),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
+        if (isUpdating) {
+            const response = await fetch(`/api/tasks/${task._id}`, {
+                method: 'PATCH',
+                body: JSON.stringify(taskData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                }
+            });
+
+            if (response.ok) {
+                setName('');
+                setType('');
+                setDuration('');
+                setDescription('');
+                dispatch({ type: 'UPDATE_TASK', payload: { ...task, ...taskData } });
             }
+        } else {
+            const response = await fetch('/api/tasks', {
+                method: 'POST',
+                body: JSON.stringify(taskData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                }
+            });
 
-        })
-        const json = await response.json()
-
-        if (!response.ok) {
-            setError(json.error)
-            setEmptyFields(json.emptyFields)
+            if (response.ok) {
+                setName('');
+                setType('');
+                setDuration('');
+                setDescription('');
+                dispatch({ type: 'ADD_TASK', payload: taskData });
+            }
         }
-        if (response.ok) {
-            setName('')
-            setType('')
-            setDuration('')
-            setDescription('')
-            setError(null)
-            setEmptyFields([])
-            console.log('new task added')
-            dispatch({
-                type: 'ADD_TASK',
-                payload: json
-            })
-        }
-    }
+    };
 
     return (
-        <form className = "create" onSubmit={handleSubmit}>
-            <h3>Add a New Task</h3>
-
+        <form className="create" onSubmit={handleSubmit}>
+            <h3>{isUpdating ? 'Update Task' : 'Add New Task'}</h3>
             <label>Task:</label>
-            <input 
-                type="text"
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-                className={emptyFields.includes('name') ? 'error' : ''}
-            />
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
             <label>Type:</label>
-            <input 
-                type="text"
-                onChange={(e) => setType(e.target.value)}
-                value={type}
-                className={emptyFields.includes('type') ? 'error' : ''}
-            />
-            <label>Duration(in hrs):</label>
-            <input 
-                type="number"
-                onChange={(e) => setDuration(e.target.value)}
-                value={duration}
-                className={emptyFields.includes('duration') ? 'error' : ''}
-            />
+            <input type="text" value={type} onChange={(e) => setType(e.target.value)} />
+            <label>Duration (in hrs):</label>
+            <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} />
             <label>Description:</label>
-            <textarea 
-                type="text"
-                onChange={(e) => setDescription(e.target.value)}
-                value={description}
-                className={emptyFields.includes('description') ? 'error' : ''}
-            />
-            <br></br>
-
-            <button>Add task</button>
-            {error && <div className="error">{error}</div>}
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
+            <br />
+            <button>{isUpdating ? 'Update Task' : 'Add Task'}</button>
+            {isUpdating && (
+                <button type="button" onClick={() => setSelectedTask(null)}>Add New</button>
+            )}
         </form>
-    )
-
-}
+    );
+};
 
 export default TaskForm;

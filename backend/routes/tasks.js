@@ -3,16 +3,19 @@ const { createTask,
         getTask,
         getTasks,
         deleteTask,
-        updateTask
-} = require('../controllers/taksController')
+        updateTask,
+        
+} = require('../controllers/taskController')
 const requireAuth = require('../middleware/requireAuth')
 
 const router = express.Router()
+
 
 // require auth for all tasks routes
 router.use(requireAuth)
 
 //get all tasks
+
 router.get('/',getTasks)
 
 //get a single task

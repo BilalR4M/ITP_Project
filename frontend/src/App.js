@@ -7,6 +7,8 @@ import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Update from './pages/Update';
+
 
 function App() {
 
@@ -21,6 +23,10 @@ function App() {
             <Route 
               path="/"
               element={user ? <Home /> : <Navigate to="/login"/>}
+            />
+            <Route
+              path='/update'
+              element={user ? <Update /> : <Navigate to="/login"/>}
             />
             <Route 
               path="/login"
